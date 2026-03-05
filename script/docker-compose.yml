@@ -1,0 +1,19 @@
+services:
+  minio:
+    image: "minio/minio:RELEASE.2024-01-11T07-46-16Z"
+    container_name: minio
+    restart: always
+    ports:
+      - "19000:9000"     # MinIO API 端口
+      - "19090:9090"     # MinIO 控制台端口
+    environment:
+      TZ: Asia/Shanghai
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: HcczT0ssTL00geHeZLRZ
+      MINIO_REGION: us-east-1
+    volumes:
+      # 持久化存储，将数据保存到本地目录
+      - ./minio-data:/data
+      # 可选：配置文件目录
+      - ./minio-config:/root/.minio
+    command: minio server /data --console-address ':9090'
