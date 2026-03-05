@@ -194,7 +194,7 @@ class User extends Authenticatable  implements JWTSubject
             User::query()->where('id',$user_id)->update([
                 'self_yeji'=>DB::raw("`self_yeji`+{$total}"),
                 'total_yeji'=>DB::raw("`total_yeji`+{$total}")
-                ]);
+            ]);
         } else {
             User::query()->where('id',$user_id)->update([
                 'self_yeji'=>DB::raw("`self_yeji`-{$total}"),
@@ -218,7 +218,7 @@ class User extends Authenticatable  implements JWTSubject
                 User::query()->whereIn('id', $parentIds)->update([
                     'team_yeji'=>DB::raw("`team_yeji`+{$total}"),
                     'total_yeji'=>DB::raw("`total_yeji`+{$total}")
-                    ]);
+                ]);
             } else {
                 User::query()->whereIn('id', $parentIds)->update([
                     'team_yeji'=>DB::raw("`team_yeji`-{$total}"),
@@ -273,62 +273,33 @@ class User extends Authenticatable  implements JWTSubject
     /**
      * 更新用户质押登记
      */
-    public static function UpdateUserRank($user_id, $path='', $rankConf=[])
+    public static function UpdateUserRank($user_id, $parent_id, $rankConf=[])
     {
-        $parentIds[] = $user_id;
-        if ($path) {
-            $tmpIds = explode('-',trim($path,'-'));
-            $tmpIds = array_filter($tmpIds);
-            if ($tmpIds) {
-                $parentIds = $parentIds+$tmpIds;
-            }
-        }
-      
-        if ($parentIds)
+        if ($parent_id>0)
         {
             if (!$rankConf) {
                 $rankConf = RankConfig::GetListCache();
                 $rankConf = array_column($rankConf, null, 'lv');
             }
             //等级升级
-            $parentList = User::query()
-                ->whereIn('id', $parentIds)
-                ->orderBy('deep', 'desc')
-                ->get(['id','deep','hold_rank','rank','give_rank','self_power','team_power'])
-                ->toArray();
-            if ($parentList && $rankConf)
+            $parentUser = User::query()
+                ->where('id', $parent_id)
+                ->first(['id','rank','zhi_yeji']);
+            if ($parentUser && $rankConf)
             {
-                foreach ($parentList as $puser)
+                $rank = 0;
+                foreach ($rankConf as $val)
                 {
-                    $rank = 0;
-                    foreach ($rankConf as $val)
-                    {
-                        if ($val['self_power']>$puser['self_power']) {
-                            continue;
-                        }
-                        if ($val['team_power']>$puser['team_power']) {
-                            continue;
-                        }
-                        
-                        $rank = $val['lv'];
+                    if ($val['zhi_yeji']>$parentUser->zhi_yeji) {
+                        continue;
                     }
-                    
-                    if ($puser['give_rank']>0 && $rank<$puser['give_rank']) {
-                        $rank = $puser['give_rank'];
-                    }
-                    
-                    if ($rank!=$puser['rank'])
-                    {
-                        if ($puser['hold_rank']==0)
-                        {
-                            self::query()->where('id', $puser['id'])->update(['rank'=>$rank]);
-                        }
-                        else
-                        {
-                            if ($rank>$puser['rank']) {
-                                self::query()->where('id', $puser['id'])->update(['rank'=>$rank]);
-                            }
-                        }
+                    $rank = $val['lv'];
+                }
+                
+                if ($rank!=$parentUser->rank)
+                {
+                    if ($rank>$parentUser->rank) {
+                        self::query()->where('id', $parentUser->id)->update(['rank'=>$rank]);
                     }
                 }
             }

@@ -14,7 +14,7 @@ use App\Models\RankConfig;
 
 class UserZhiTable extends LazyRenderable
 {
-    public $nodeArr = [0=>'',1=>'启航节点',2=>'飞跃节点',3=>'巅峰节点'];
+    public $nodeArr = [0=>'',1=>'联创'];
     public $rankArr = [];
     public function __construct() {
         $rankArr = RankConfig::query()->orderBy('lv', 'asc')->pluck('name', 'lv')->toArray();
@@ -26,8 +26,9 @@ class UserZhiTable extends LazyRenderable
         return Grid::make(new User(), function (Grid $grid) {
             $grid->column('id', 'ID')->sortable();
             $grid->column('address', '地址');
-            $grid->column('rank', '团队等级')->using($this->rankArr)->label('success');
-            $grid->column('node_rank', '节点等级')->using($this->nodeArr)->label();
+            $grid->column('self_yeji', '个人业绩');
+//             $grid->column('rank', '团队等级')->using($this->rankArr)->label('success');
+            $grid->column('rank', '节点等级')->using($this->nodeArr)->label();
             $grid->column('created_at','注册日期')->display(function ($value) {
                 return $value->toDateTimeString();
             });

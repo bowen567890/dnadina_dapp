@@ -42,11 +42,11 @@ class NodeOrderController extends AdminController
     {
         return Grid::make(NodeOrder::with(['user']), function (Grid $grid) {
             $grid->column('id')->sortable();
-            $grid->column('lv')->using($this->lvArr)->label('success');
+//             $grid->column('lv')->using($this->lvArr)->label('success');
             $grid->column('user_id');
             $grid->column('user.address', '用户地址');
             $grid->column('price');
-            $grid->column('give_rank')->using($this->rankArr)->label('success');
+//             $grid->column('give_rank')->using($this->rankArr)->label('success');
 //             $grid->column('mine_income_rate', '每日收益比率')->help('每日挖矿产出比率(0.1=10%)');
 //             $grid->column('income_info', '收益详情')->display(function () {
 //                 $mine_income_rate = bcmul($this->mine_income_rate, '100', 3);
@@ -58,14 +58,14 @@ class NodeOrderController extends AdminController
 //                 return $html;
 //             });
 
-            $grid->column('lock_info', '锁仓详情')->display(function () {
-                $mine_income_rate = bcmul($this->mine_income_rate, '100', 3);
-                $mine_income_rate = $mine_income_rate.'%';
-                $html = "";
-                $html .= "<div class='margin-top-xs'>锁仓数量：" .$this->give_lock_dht . "</div>";
-                $html .= "<div class='margin-top-xs'>锁仓天数：" .$this->fee_day . "</div>";
-                return $html;
-            });
+//             $grid->column('lock_info', '锁仓详情')->display(function () {
+//                 $mine_income_rate = bcmul($this->mine_income_rate, '100', 3);
+//                 $mine_income_rate = $mine_income_rate.'%';
+//                 $html = "";
+//                 $html .= "<div class='margin-top-xs'>锁仓数量：" .$this->give_lock_dht . "</div>";
+//                 $html .= "<div class='margin-top-xs'>锁仓天数：" .$this->fee_day . "</div>";
+//                 return $html;
+//             });
             
 //             $grid->column('output_coin','产出代币')->using($this->coinArr)->label('success')->help('USDT每天产出一次,BTC每10分钟产出');
             
@@ -107,29 +107,29 @@ class NodeOrderController extends AdminController
                 'created_at' => '创建时间',
             ];
             
-            $grid->export($titles)->rows(function ($rows)
-            {
-                set_time_limit(0);
-                ini_set('memory_limit','1024M');
+//             $grid->export($titles)->rows(function ($rows)
+//             {
+//                 set_time_limit(0);
+//                 ini_set('memory_limit','1024M');
                 
-                $lvArr = [0=>'',1=>'启航节点',2=>'飞跃节点',3=>'巅峰节点'];
-                $rankArr = $this->rankArr;
-                $sourceTypeArr = $this->sourceTypeArr;
+//                 $lvArr = [0=>'',1=>'启航节点',2=>'飞跃节点',3=>'巅峰节点'];
+//                 $rankArr = $this->rankArr;
+//                 $sourceTypeArr = $this->sourceTypeArr;
                 
-                foreach ($rows as $index => &$row)
-                {
-                    $row['give_rank'] = $rankArr[$row['give_rank']];
-                    $row['lv'] = $lvArr[$row['lv']];
-                    $row['source_type'] = $sourceTypeArr[$row['source_type']];
-                }
-                return $rows;
-            });
+//                 foreach ($rows as $index => &$row)
+//                 {
+//                     $row['give_rank'] = $rankArr[$row['give_rank']];
+//                     $row['lv'] = $lvArr[$row['lv']];
+//                     $row['source_type'] = $sourceTypeArr[$row['source_type']];
+//                 }
+//                 return $rows;
+//             });
             
             $grid->disableCreateButton();
             $grid->disableRowSelector();
             $grid->disableEditButton();
-//             $grid->disableDeleteButton();
-//             $grid->disableActions();
+            $grid->disableDeleteButton();
+            $grid->disableActions();
             $grid->scrollbarX();    			//滚动条
             $grid->paginate(10);				//分页
             
@@ -137,8 +137,8 @@ class NodeOrderController extends AdminController
                 $filter->equal('id');
                 $filter->equal('user_id');
                 $filter->equal('user.address', '用户地址');
-                $filter->equal('lv')->select($this->lvArr);
-                $filter->equal('source_type', '节点来源')->select($this->sourceTypeArr);
+//                 $filter->equal('lv')->select($this->lvArr);
+//                 $filter->equal('source_type', '节点来源')->select($this->sourceTypeArr);
                 $filter->between('created_at','创建时间')->date();
             });
         });

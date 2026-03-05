@@ -30,6 +30,7 @@ use App\Models\WebsiteAnalyzeDaily;
 use App\Models\WebsiteStatistic;
 use App\Models\NodePeriod;
 use App\Models\DhtLockOrder;
+use App\Models\RankConfig;
 
 class RechargeService extends BaseService
 {
@@ -105,122 +106,80 @@ class RechargeService extends BaseService
                     $date = date('Y-m-d', $time);
                     $datetime = date('Y-m-d H:i:s', $time);
                     
-                    $user = User::query()->where('id', $order->user_id)->first(['id','rank','hold_rank','give_rank','node_rank']);
+                    $user = User::query()->where('id', $order->user_id)->first(['id','rank', 'path', 'parent_id','valid_status']);
                     
                     $order->pay_status = 1;
                     $order->hash = $hash;
                     $order->save();
                     
                     $NodeOrder = new NodeOrder();
-                    $NodeOrder->lv = $order->lv;
                     $NodeOrder->period_id = $order->period_id;
                     $NodeOrder->user_id = $order->user_id;
+                    $NodeOrder->main_chain = $order->main_chain;
                     $NodeOrder->price = $order->price;
-                    $NodeOrder->give_lock_dht = $order->give_lock_dht;
-                    $NodeOrder->fee_day = $order->fee_day;
-                    $NodeOrder->pay_type = $order->pay_type;
-                    $NodeOrder->give_rank = $order->give_rank;
                     $NodeOrder->ordernum = $order->ordernum;
-                    $NodeOrder->source_type = $order->source_type;  //节点来源1购买2后台
                     $NodeOrder->direct_uid = $order->direct_uid;
-                    $NodeOrder->indirect_uid = $order->indirect_uid;
                     $NodeOrder->direct_rate = $order->direct_rate;
-                    $NodeOrder->indirect_rate = $order->indirect_rate;
-                    $NodeOrder->divvy_rate = $order->divvy_rate;
-                    $NodeOrder->trade_rate = $order->trade_rate;
-                    $NodeOrder->company_rate = $order->company_rate;
                     $NodeOrder->direct_num = $order->direct_num;
-                    $NodeOrder->indirect_num = $order->indirect_num;
-                    $NodeOrder->divvy_num = $order->divvy_num;
-                    $NodeOrder->trade_num = $order->trade_num;
-                    $NodeOrder->company_num = $order->company_num;
                     $NodeOrder->hash = $hash;
                     $NodeOrder->save();
                     
                     NodePeriod::query()->where('id', $order->period_id)->update([
-                        'stock' => DB::raw("`stock`-1"),
-                        'sales' => DB::raw("`sales`+1")
+                        'over_quota' => DB::raw("`over_quota`+{$order->price}")
                     ]);
-                    
-                    $uup = [];
-                    
-                    if ($order->give_rank>$user->give_rank) {
-                        $uup['give_rank'] = $order->give_rank;
+                    $NodePeriod = NodePeriod::query()->where('id', $order->period_id)->first();
+                    if (bccomp($NodePeriod->over_quota, $NodePeriod->total_quota, 2)>=0) {
+                        $NodePeriod->status = 2;
+                        $NodePeriod->etime = date('Y-m-d H:i:s', $time);
+                        $NodePeriod->save();
                     }
-                    if ($order->give_rank>$user->rank) {
-                        $uup['rank'] = $order->give_rank;
+                   
+                    if ($user->valid_status==0) 
+                    {
+                        $user->valid_status = 1;
+                        $user->save();
+                        if ($user->parent_id>0) {
+                            User::query()->where('id', $user->parent_id)->update([
+                                'zhi_valid' => DB::raw("`zhi_valid`+1")
+                            ]);
+                        }
                     }
-                    if ($order->lv>$user->node_rank) {
-                        $uup['node_rank'] = $order->lv;
-                    }
-                    if ($uup) {
-                        User::query()->where('id', $order->user_id)->update($uup);
-                    }
-                    
+                   
                     $userModel = new User();
-                    if (bccomp($order->give_lock_dht, '0', 2)>0 && $order->fee_day>0)
-                    {
-                        //分类1系统增加2系统扣除5锁仓释放6购买节点
-                        $cates = ['msg'=>'购买节点', 'cate'=>6, 'ordernum'=>$order->ordernum];
-                        $userModel->handleUser('dht_lock', $order->user_id, $order->give_lock_dht, 1, $cates);
+                    $userModel->handleSelfYeji($order->user_id, $order->price);
+                    
+                    if ($user->parent_id>0) {
+                        User::query()->where('id', $user->parent_id)->update([
+                            'zhi_yeji' => DB::raw("`zhi_yeji`+{$order->price}")
+                        ]);
+                    }
+                    
+                    if ($user->path) {
+                        $userModel->handleTeamYeji($user->path, $order->price);
+                    }
+                    //等级配置
+                    $rankConf = RankConfig::GetListCache();
+                    $rankConf = $rankConf ? array_column($rankConf, null, 'lv') : [];
+                    //更新用户等级
+                    $userModel->UpdateUserRank($user->user_id, $user->parent_id, $rankConf);
+                    
+                    WebsiteAnalyzeDaily::query()
+                        ->where('date', $date)
+                        ->update(
+                            [
+                                'recharge_usdt' => DB::raw("`recharge_usdt`+{$order->price}"),
+                                'recharge_usdt_node' => DB::raw("`recharge_usdt_node`+{$order->price}")
+                            ]
+                        );
                         
-                        $daily_num = bcdiv($order->give_lock_dht, $order->fee_day, 6);
-                        $DhtLockOrder = new DhtLockOrder();
-                        $DhtLockOrder->user_id = $order->user_id;
-                        $DhtLockOrder->node_oid = $NodeOrder->id;
-                        $DhtLockOrder->total_day = $order->fee_day;
-                        $DhtLockOrder->wait_day = $order->fee_day;
-                        $DhtLockOrder->total_num = $order->give_lock_dht;
-                        $DhtLockOrder->wait_num = $order->give_lock_dht;
-                        $DhtLockOrder->daily_num = $daily_num;
-                        $DhtLockOrder->ordernum = $order->ordernum;
-                        $DhtLockOrder->save();
-                        
-                        $NodeOrder->lock_oid = $DhtLockOrder->id;
-                        $NodeOrder->save();
-                    }
-//                     if (bccomp($order->indirect_num, '0', 2)>0 && $order->indirect_uid>0)
-//                     {
-//                         //分类1系统增加2系统扣除3提币扣除4提币驳回5直推节点6间推节点
-//                         $cates = ['msg'=>'间推节点', 'cate'=>6, 'ordernum'=>$order->ordernum, 'from_user_id'=>$order->user_id];
-//                         $userModel->handleUser('usdt', $order->indirect_uid, $order->indirect_num, 1, $cates);
-//                     }
-                    
-                    $PowerEvent = new PowerEvent();
-                    $PowerEvent->user_id = $order->user_id;
-                    $PowerEvent->order_id = $NodeOrder->id;
-                    $PowerEvent->type = 1;  //事件类型1节点事件
-                    $PowerEvent->usdt = $order->price;
-                    $PowerEvent->ordernum = $order->ordernum;
-                    $PowerEvent->save();
-                    
-                    if ($order->trade_num>0) {
-                        FundPool::query()->where('type', 1)->increment('amount', $order->trade_num);
-                    }
-                    if ($order->divvy_num>0) {
-                        FundPool::query()->where('type', 2)->increment('amount', $order->divvy_num);
-                    }
-                    
-                    if ($order->source_type==1) 
-                    {
-                        WebsiteAnalyzeDaily::query()
-                            ->where('date', $date)
-                            ->update(
-                                [
-                                    'recharge_usdt' => DB::raw("`recharge_usdt`+{$order->price}"),
-                                    'recharge_usdt_node' => DB::raw("`recharge_usdt_node`+{$order->price}")
-                                ]
-                            );
-                            
-                        WebsiteStatistic::query()
-                            ->where('id', 1)
-                            ->update(
-                                [
-                                    'recharge_usdt' => DB::raw("`recharge_usdt`+{$order->price}"),
-                                    'recharge_usdt_node' => DB::raw("`recharge_usdt_node`+{$order->price}")
-                                ]
-                            );
-                    }
+                    WebsiteStatistic::query()
+                        ->where('id', 1)
+                        ->update(
+                            [
+                                'recharge_usdt' => DB::raw("`recharge_usdt`+{$order->price}"),
+                                'recharge_usdt_node' => DB::raw("`recharge_usdt_node`+{$order->price}")
+                            ]
+                        );
                     
                     DB::commit();
                 }
@@ -228,7 +187,7 @@ class RechargeService extends BaseService
                 {
                     DB::rollBack();
                     $MyRedis->del_lock($lockKey);
-                    throw new \Exception($e->getMessage());
+                    throw new \Exception($e->getMessage().$e->getFile().$e->getLine());
                 }
             }
             $MyRedis->del_lock($lockKey);

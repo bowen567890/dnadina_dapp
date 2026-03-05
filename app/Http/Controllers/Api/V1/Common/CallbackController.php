@@ -38,6 +38,7 @@ class CallbackController extends ApiController
             Log::channel('recharge_callback')->info('无法继续11');
             return $this->responseError('参数不完整1');
         }
+        
         RechargeService::getService()->walletRecharge($data);
         return $this->response();
     }

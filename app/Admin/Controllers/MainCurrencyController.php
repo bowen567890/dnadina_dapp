@@ -21,6 +21,10 @@ class MainCurrencyController extends AdminController
         0=>'否',
         1=>'是',
     ];
+    public $mainChainArr = [
+        1=>'BSC',
+        2=>'NADI',
+    ];
     public function index(Content $content)
     {
         return $content
@@ -34,6 +38,15 @@ class MainCurrencyController extends AdminController
         return Grid::make(new MainCurrency(), function (Grid $grid) {
             $grid->column('id');
             $grid->column('name');
+            $grid->column('main_chain', '主链')->display(function () {
+                $arr = [
+                    1=>'BSC',
+                    2=>'NADI',
+                ];
+                $msg = $arr[$this->main_chain];
+                $colour = $this->main_chain == 1 ? '#edc30e' : '#808080';
+                return "<span class='label' style='background:{$colour}'>{$msg}</span>";
+            });
             $grid->column('coin_img')->image(env('APP_URL').'/uploads/',50,50);
             /*
              $grid->column('rate')->display(function ($rate){
@@ -42,7 +55,7 @@ class MainCurrencyController extends AdminController
              */
             $grid->column('rate','代币价格');
             $grid->column('contract_address','合约地址');
-            $grid->column('contract_address_lp', 'LP合约地址');
+//             $grid->column('contract_address_lp', 'LP合约地址');
             $grid->column('precision');
             $grid->column('is_sync', '同步价格')->display(function () {
                 $arr = [
@@ -57,6 +70,8 @@ class MainCurrencyController extends AdminController
             $grid->column('updated_at');
             //             $grid->model()->orderBy('id','desc');
             
+            $grid->disableActions();		//创建按钮
+            $grid->disableEditButton();		//创建按钮
             $grid->disableCreateButton();		//创建按钮
             $grid->disableRowSelector();		//帅选按钮
             

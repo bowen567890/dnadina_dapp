@@ -64,6 +64,7 @@ Route::prefix('v1')->middleware(['api', 'cors-should'])->group(function () {
         Route::prefix('user')->group(function () {
             //个人信息
             Route::post('info', [\App\Http\Controllers\Api\V1\User\UserController::class, 'info']);
+            Route::post('zhiList', [\App\Http\Controllers\Api\V1\User\UserController::class, 'zhiList']);
             Route::post('teamList', [\App\Http\Controllers\Api\V1\User\UserController::class, 'teamList']);
             Route::post('usdtLog', [\App\Http\Controllers\Api\V1\User\UserController::class, 'usdtLog']);
             Route::post('dhtLog', [\App\Http\Controllers\Api\V1\User\UserController::class, 'dhtLog']);

@@ -32,13 +32,13 @@ class HomeController extends Controller
                   $content->body(function (Row $row) {
                       $row->column(3, new TotalUsers());
                       $row->column(3, new Level());
-                      $row->column(3, new Node());
-                      $row->column(3, new UserBalance());
+//                       $row->column(3, new Node());
+//                       $row->column(3, new UserBalance());
                   });
                   
                   $content->body(function (Row $row) {
-                      $row->column(3, new RechargeStatistics());
-                      $row->column(3, new WithdrawStatisticsUsdt());
+//                       $row->column(3, new RechargeStatistics());
+//                       $row->column(3, new WithdrawStatisticsUsdt());
                   });
                   
                   $content->body(function (Row $row) {

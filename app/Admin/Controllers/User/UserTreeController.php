@@ -13,7 +13,7 @@ use App\Models\RankConfig;
 
 class UserTreeController extends AdminController
 {
-    public $nodeArr = [0=>'',1=>'启航节点',2=>'飞跃节点',3=>'巅峰节点'];
+    public $nodeArr = [0=>'',1=>'联创'];
     public $nodeArr2 = [1=>'启航节点',2=>'飞跃节点',3=>'巅峰节点'];
     
     public $rankArr = [];
@@ -74,19 +74,19 @@ class UserTreeController extends AdminController
                 return $html;
             });
             
-            $grid->column('urank', '等级')->display(function () use($nodeArr, $rankArr, $sourceTypeArr, $holdRankArr, $validStatusArr)
-            {
-                $html = "";
-                $html .= "<div class='margin-top-xs'>VIP等级：" .$rankArr[$this->rank] . "</div>";
-                $html .= "<div class='margin-top-xs'>节点等级：" .$nodeArr[$this->node_rank] . "</div>";
-                $html .= "<div class='margin-top-xs'>有效用户：" .$validStatusArr[$this->valid_status] . "</div>";
-                return $html;
-            });
+//             $grid->column('urank', '等级')->display(function () use($nodeArr, $rankArr, $sourceTypeArr, $holdRankArr, $validStatusArr)
+//             {
+//                 $html = "";
+//                 $html .= "<div class='margin-top-xs'>VIP等级：" .$rankArr[$this->rank] . "</div>";
+//                 $html .= "<div class='margin-top-xs'>节点等级：" .$nodeArr[$this->node_rank] . "</div>";
+//                 $html .= "<div class='margin-top-xs'>有效用户：" .$validStatusArr[$this->valid_status] . "</div>";
+//                 return $html;
+//             });
             
             $grid->column('nodeyeji', '节点业绩')->display(function () {
                 $html = "";
-                $html .= "<div class='margin-top-xs'>个人业绩：" . $this->self_node . "</div>";
-                $html .= "<div class='margin-top-xs'>团队业绩：" . $this->team_node . "</div>";
+                $html .= "<div class='margin-top-xs'>个人业绩：" . $this->self_yeji . "</div>";
+                $html .= "<div class='margin-top-xs'>团队业绩：" . $this->team_yeji . "</div>";
                 //                 $html .= "<div class='margin-top-xs'>总计节点业绩：" . $this->total_yeji . "</div>";
                 return $html;
             })->help('只统计购买节点的业绩');
