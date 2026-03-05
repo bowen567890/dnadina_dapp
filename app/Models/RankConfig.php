@@ -3,13 +3,32 @@
 namespace App\Models;
 
 use Dcat\Admin\Traits\HasDateTimeFormatter;
-
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class RankConfig extends Model
 {
 	use HasDateTimeFormatter;
     protected $table = 'rank_config';
+
+    /**
+     * 确保 name 始终返回数组，避免 embeds 表单在 name 为 null 时报错
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if ($value === null || $value === '') {
+                    return [];
+                }
+                if (is_array($value)) {
+                    return $value;
+                }
+                $decoded = json_decode($value, true);
+                return is_array($decoded) ? $decoded : [];
+            },
+        );
+    }
     
     
     /**

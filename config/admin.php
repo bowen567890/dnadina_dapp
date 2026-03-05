@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'DHT',
+    'name' => 'DNA镝纳',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;DHT',
+    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;DNA镝纳',
 
     /*
     |--------------------------------------------------------------------------
@@ -105,7 +105,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'DHT',
+    'title' => 'DNA镝纳',
 
     /*
     |--------------------------------------------------------------------------

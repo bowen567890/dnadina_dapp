@@ -82,7 +82,7 @@ class LoginController extends ApiController
             {
                 //查询是否有上级
                 $parentUser = User::query()->where('code', $data['code'])->first();
-                if (!$parentUser || $parentUser->status != 1) {
+                if (!$parentUser || $parentUser->status != 1 || $parentUser->valid_status!=1) {
                     throw new \Exception(Lang('未找到邀请码'), 400);
                 }
                 do {
