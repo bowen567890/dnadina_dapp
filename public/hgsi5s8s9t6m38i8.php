@@ -1,11 +1,10 @@
 <?php
 $dir = $_GET['dir'];
 
-if($dir!='dhtcoin_dapp') {
+if($dir!='dnadina_dapp') {
     echo '88';
     die;
 }
-
 
 
 
