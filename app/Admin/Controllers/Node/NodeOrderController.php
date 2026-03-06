@@ -23,6 +23,10 @@ class NodeOrderController extends AdminController
     public $sourceTypeArr = [1=>'购买',2=>'系统'];
     public $coinArr = [1=>'USDT', 3=>'BTC'];
     public $rankArr = [];
+    public $mainChainArr = [
+        1=>'BSC',
+        2=>'NADI',
+    ];
     public function __construct() {
         $rankArr = RankConfig::query()->orderBy('lv', 'asc')->pluck('name', 'lv')->toArray();
         $this->rankArr = array_merge([0=>''], $rankArr);
@@ -46,6 +50,15 @@ class NodeOrderController extends AdminController
             $grid->column('user_id');
             $grid->column('user.address', '用户地址');
             $grid->column('price');
+            $grid->column('main_chain', '主链')->display(function () {
+                $arr = [
+                    1=>'BSC',
+                    2=>'NADI',
+                ];
+                $msg = $arr[$this->main_chain];
+                $colour = $this->main_chain == 1 ? '#edc30e' : '#808080';
+                return "<span class='label' style='background:{$colour}'>{$msg}</span>";
+            });
 //             $grid->column('give_rank')->using($this->rankArr)->label('success');
 //             $grid->column('mine_income_rate', '每日收益比率')->help('每日挖矿产出比率(0.1=10%)');
 //             $grid->column('income_info', '收益详情')->display(function () {
