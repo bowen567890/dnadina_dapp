@@ -59,7 +59,7 @@ class NodeController extends ApiController
         $data['total_quota'] = $NodePeriod->total_quota;
         $data['over_quota'] = bccomp($NodePeriod->over_quota, $NodePeriod->total_quota, 2)>=0 ? $NodePeriod->total_quota : $NodePeriod->over_quota;
         $data['progress_bar'] = bcmul(bcdiv($data['over_quota'], $data['total_quota'], 2), '100', 0);
-        
+        $data['total_quota'] = intval( $data['total_quota']);
         $data['btime'] = $NodePeriod->btime;
         $data['etime'] = $NodePeriod->etime;
         
