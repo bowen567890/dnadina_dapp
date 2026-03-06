@@ -19,7 +19,7 @@ class CheckWalletSystemMiddleware
     {
         //判断IP
         $trustIp = [
-            '127.0.0.1','118.107.19.69'
+            '127.0.0.1','192.252.185.53'
         ];
         if (!in_array($request->ip(),$trustIp)){
             return (new \App\Util\Response())->fail(401,Lang('非信任请求'))->json();
