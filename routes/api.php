@@ -51,6 +51,7 @@ Route::prefix('v1')->middleware(['api', 'cors-should'])->group(function () {
     });
     Route::prefix('index')->group(function (){
         Route::post('index',[\App\Http\Controllers\Api\V1\IndexController::class, 'index']);
+        Route::post('tokenList',[\App\Http\Controllers\Api\V1\IndexController::class, 'tokenList']);
     });
 
     // 需要登录鉴权的接口

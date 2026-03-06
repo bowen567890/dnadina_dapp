@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
 //         $schedule->command('app:settlement-command')->cron('2,12,22,32,42,52 * * * *');
 
         //节点加权奖励
-        $schedule->command('command:NodeDivvyReward')->cron('0 0 * * *');
+//         $schedule->command('command:NodeDivvyReward')->cron('0 0 * * *');
         
         //创建明日数据统计
         $schedule->command('command:CreateTomorrowData')->cron('0 */12 * * *');
