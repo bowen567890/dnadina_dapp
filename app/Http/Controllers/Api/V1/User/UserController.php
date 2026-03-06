@@ -77,7 +77,7 @@ class UserController extends ApiController
         $user = $this->user();
         $in = $request->input();
         
-        $pageNum = isset($in['page_num']) && intval($in['page_num'])>0 ? intval($in['page_num']) : 20;
+        $pageNum = isset($in['page_size']) && intval($in['page_size'])>0 ? intval($in['page_size']) : 20;
         $page = isset($in['page']) ? intval($in['page']) : 1;
         $page = $page<=0 ? 1 : $page;
         $pageNum = $pageNum>=20 ? 20 : $pageNum;
@@ -115,7 +115,7 @@ class UserController extends ApiController
         $user = $this->user();
         $in = $request->input();
         
-        $pageNum = isset($in['page_num']) && intval($in['page_num'])>0 ? intval($in['page_num']) : 20;
+        $pageNum = isset($in['page_size']) && intval($in['page_size'])>0 ? intval($in['page_size']) : 20;
         $page = isset($in['page']) ? intval($in['page']) : 1;
         $page = $page<=0 ? 1 : $page;
         $pageNum = $pageNum>=20 ? 20 : $pageNum;
