@@ -108,6 +108,16 @@ class RechargeService extends BaseService
                     
                     $user = User::query()->where('id', $order->user_id)->first(['id','rank', 'path', 'parent_id','valid_status']);
                     
+                    $main_chain = $order->main_chain;
+                    if (isset($in['main_chain'])) {
+                        if ($in['main_chain']=='bsc') {
+                            $main_chain = 1;
+                        } else if ($in['main_chain']=='eth') {
+                            $main_chain = 2;
+                        }
+                    }
+                    
+                    $order->main_chain = $main_chain;
                     $order->pay_status = 1;
                     $order->hash = $hash;
                     $order->save();
@@ -115,7 +125,7 @@ class RechargeService extends BaseService
                     $NodeOrder = new NodeOrder();
                     $NodeOrder->period_id = $order->period_id;
                     $NodeOrder->user_id = $order->user_id;
-                    $NodeOrder->main_chain = $order->main_chain;
+                    $NodeOrder->main_chain = $main_chain;
                     $NodeOrder->price = $order->price;
                     $NodeOrder->ordernum = $order->ordernum;
                     $NodeOrder->direct_uid = $order->direct_uid;
